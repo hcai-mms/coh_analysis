@@ -12,7 +12,6 @@ from services.normalized_feature_service import NormalizedFeatureService
 from services.playlist_service import PlaylistService
 from services.service import Service
 from services.coherence_service import CoherenceService
-from services.track_info_service import TrackInfoService
 from utils.variance_util import pair_distance, tonality_distance
 from utils.variance_util import sequential_variance as f_sequential_variance
 from utils.variance_util import playlist_variance as f_playlist_variance
@@ -185,12 +184,11 @@ class AlgorithmService(Service):
         return playlist
 
     @staticmethod
-    def print_nodes(nodes, track_info_service: TrackInfoService):
+    def print_nodes(nodes):
         for node in nodes:
             track_str = []
             for track in node.tracks:
-                track_info = track_info_service[track.track_id]
-                track_str.append(f"[{track_info.name}|{track.track_id}]")
+                track_str.append(track.track_id)
             print(node.name, ", ".join(track_str))
 
     def print_stats(self, reordered):
@@ -245,14 +243,11 @@ def save(pid=195677):
 
 
 def train(pid=195677):
-    track_info_service = TrackInfoService()
-    track_info_service.load_from_cache()
-
     algorithm_service = AlgorithmService(pid)
     algorithm_service.load_from_cache()
-    algorithm_service.print_nodes(algorithm_service.nodes, track_info_service)
+    algorithm_service.print_nodes(algorithm_service.nodes)
     reordered = algorithm_service.train()
-    algorithm_service.print_nodes(reordered, track_info_service)
+    algorithm_service.print_nodes(reordered)
     algorithm_service.print_stats(reordered)
 
 
